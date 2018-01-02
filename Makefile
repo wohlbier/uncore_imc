@@ -1,8 +1,8 @@
 CC=icc
 CFLAGS=-O -g -fasm-blocks -std=gnu99
-EXE=counter
+EXE=uncore_imc
 LDFLAGS=-static-intel
-OBJ=app.o counter.o
+OBJ=uncore_imc.o counter.o
 
 
 all : $(OBJ)

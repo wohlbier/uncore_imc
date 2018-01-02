@@ -40,7 +40,7 @@ static void readcounters(struct counters *s)
     }
 }
 
-// stole from stream
+// borrowed from stream
 double sec()
 {
         struct timeval tp;
@@ -63,7 +63,8 @@ main(int argc, char **argv)
     size_t data_bytes = data_size*1024*1024;
     size_t data_lines = data_bytes / 64;
     printf("%d Iterations, %lu bytes\n", ITER, ITER * data_bytes);
-    printf("%15s: %8lu\n", "Expected memops", ITER * data_lines);
+    size_t emo = ITER * data_lines;
+    printf("%15s: %8lu\n\n", "Expected memops", emo);
 
     void *data = 0;
     int ret = posix_memalign(&data, 1024*1024, data_bytes);
@@ -74,7 +75,7 @@ main(int argc, char **argv)
     struct counters s1, s2;
 
     readcounters(&s1);
-    double start = sec();
+    //double start = sec();
     for(int j=0;j<ITER;j++)
     {
         __asm
@@ -95,10 +96,10 @@ main(int argc, char **argv)
                 LN2:
         }
     }
-    double stop = sec();
+    //double stop = sec();
     readcounters(&s2);
     uint64_t sum;
-    printf("%15s:", " DDR Reads");
+    printf("%25s","DDR Reads:");
     sum = 0;
     for (int i = 0; i < NMC; ++i)
     {
@@ -107,8 +108,8 @@ main(int argc, char **argv)
         sum += diff;
     }
     uint64_t rds_tot = sum;
-    printf("\n%15s: %8lu\n", " DDR Reads Total", rds_tot);
-    printf("%15s:", " DDR Writes");
+    printf("\n%25s %8lu\n", "DDR Reads Total:", rds_tot);
+    printf("%25s", "DDR Writes:");
     sum = 0;
     for (int i = 0; i < NMC; ++i)
     {
@@ -117,9 +118,12 @@ main(int argc, char **argv)
         sum += diff;
     }
     uint64_t wrt_tot = sum;
-    printf("\n%15s: %8lu\n", " DDR Writes Total", wrt_tot);
-    printf("\n%15s: %8lu\n", " Reads plus Writes Total", rds_tot+wrt_tot);
+    printf("\n%25s %8lu\n", "DDR Writes Total:", wrt_tot);
+    uint64_t rd_wr_tot = rds_tot+wrt_tot;
+    printf("\n%25s %8lu\n", "Reads plus Writes Total:", rd_wr_tot);
+    printf("%25s %8lu\n",   "Expected memops:", emo);
 
+#if 0
     double time = stop-start;
     printf("stop=%e, start=%e\n",stop,start);
     double bln = 1024.0*1024.0*1024.0;
@@ -128,6 +132,7 @@ main(int argc, char **argv)
 	   data_bytes/time/bln);
     printf("Bandwidth (counted)   = %e GiB/s\n", 
 	   (rds_tot+wrt_tot)*64/time/bln);
+#endif
 
 #if 0
     printf("%15s:", " MCDRAM Reads");
