@@ -1,5 +1,5 @@
 CC=icc
-CFLAGS=-O -g -fasm-blocks -std=gnu99
+CFLAGS=-O0 -g -fasm-blocks -std=gnu99
 EXE=uncore_imc
 LDFLAGS=-static-intel
 OBJ=uncore_imc.o counter.o

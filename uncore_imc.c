@@ -1,8 +1,9 @@
 #define _GNU_SOURCE
+#include <assert.h>
+#include <math.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
-#include <assert.h>
 #include <string.h>
 #include <sys/time.h>
 
@@ -51,7 +52,7 @@ double sec()
         return ( (double) tp.tv_sec + (double) tp.tv_usec * 1.e-6 );
 }
 
-#define ITER 10
+#define ITER 1
 
 
 int
@@ -99,17 +100,18 @@ main(int argc, char **argv)
     //double stop = sec();
     readcounters(&s2);
     uint64_t sum;
-    printf("%25s","DDR Reads:");
+    printf("%17s","DDR Reads:");
     sum = 0;
     for (int i = 0; i < NMC; ++i)
     {
         uint64_t diff = s2.mc_rd[i] - s1.mc_rd[i];
         printf(" %8lu", diff);
+	//printf("\n%8lu %8lu %8lu\n", s2.mc_rd[i], s1.mc_rd[i], diff);
         sum += diff;
     }
     uint64_t rds_tot = sum;
-    printf("\n%25s %8lu\n", "DDR Reads Total:", rds_tot);
-    printf("%25s", "DDR Writes:");
+    printf("\n%17s %8lu\n", "DDR Reads Total:", rds_tot);
+    printf("%17s", "DDR Writes:");
     sum = 0;
     for (int i = 0; i < NMC; ++i)
     {
@@ -118,10 +120,12 @@ main(int argc, char **argv)
         sum += diff;
     }
     uint64_t wrt_tot = sum;
-    printf("\n%25s %8lu\n", "DDR Writes Total:", wrt_tot);
+    printf("\n%17s %8lu\n", "DDR Writes Total:", wrt_tot);
     uint64_t rd_wr_tot = rds_tot+wrt_tot;
     printf("\n%25s %8lu\n", "Reads plus Writes Total:", rd_wr_tot);
-    printf("%25s %8lu\n",   "Expected memops:", emo);
+    printf("%25s %8lu\n", "Expected memops:", emo);
+    printf("%25s %6.2f%%\n", "Difference:",
+	   100.0*fabs((double)emo - (double)rd_wr_tot)/((double) emo));
 
 #if 0
     double time = stop-start;
