@@ -92,29 +92,30 @@ main(int argc, char **argv)
     struct counters s1, s2;
 
     readcounters(&s1);
-    //double start = sec();
+    double start = sec();
     for(int j=0;j<ITER;j++)
     {
         __asm
         {
-                mov rax, data
-                mov r10, rax
-                mov r11, rax
-                mov rbx, data_lines
+           mov rax, data        /* put data ptr into ax */
+           mov r10, rax         /* put data ptr into r10 */
+           mov r11, rax         /* put data ptr into r11 */
+           mov rbx, data_lines  /* put number of cache lines into rbx */
  
-                xor rcx, rcx
-                LN1:
-                        cmp rcx, rbx
-                        jge LN2
-                        inc rcx
-                        mov rax, QWORD PTR [r11]
-                        add r11, 64
-                        jmp LN1
-                LN2:
+           xor rcx, rcx         /* zero register rcx, loop counter */
+           LN1:
+	     cmp rcx, rbx       /* compare loop ctr to num cache lines */
+             jge LN2            /* if loop ctr > n cache lines, exit */
+             inc rcx            /* increment loop ctr */
+             mov rax, QWORD PTR [r11]  /* move qword at addr in r11 to rax */
+             add r11, 64        /* increment addr in r11 by a cache line */
+             jmp LN1            /* return to top of loop */
+           LN2:
         }
     }
-    //double stop = sec();
+    double stop = sec();
     readcounters(&s2);
+
     uint64_t sum;
     printf("%17s","DDR Reads:");
     sum = 0;
@@ -122,7 +123,6 @@ main(int argc, char **argv)
     {
         uint64_t diff = s2.mc_rd[i] - s1.mc_rd[i];
         printf(" %8lu", diff);
-	//printf("\n%8lu %8lu %8lu\n", s2.mc_rd[i], s1.mc_rd[i], diff);
         sum += diff;
     }
     uint64_t rds_tot = sum;
@@ -143,15 +143,15 @@ main(int argc, char **argv)
     printf("%25s %6.2f%%\n", "Difference:",
 	   100.0*fabs((double)emo - (double)rd_wr_tot)/((double) emo));
 
-#if 0
+#if 1
+    printf("stop=%3.3f, start=%3.3f\n",stop,start);
     double time = stop-start;
-    printf("stop=%e, start=%e\n",stop,start);
-    double bln = 1024.0*1024.0*1024.0;
-    printf("Time elapsed = %e s\n",stop-start);
-    printf("Bandwidth (empirical) = %e GiB/s\n",
-	   data_bytes/time/bln);
-    printf("Bandwidth (counted)   = %e GiB/s\n", 
-	   (rds_tot+wrt_tot)*64/time/bln);
+    printf("Time elapsed = %3.3f s\n",time);
+    double mln = 1024.0*1024.0;
+    printf("Bandwidth (empirical) = %3.2f MiB/s\n",
+	   data_bytes/time/mln);
+    printf("Bandwidth (counted)   = %3.2f MiB/s\n", 
+	   (rds_tot+wrt_tot)*64/time/mln);
 #endif
 
 #if 0
