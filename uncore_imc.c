@@ -81,7 +81,7 @@ main(int argc, char **argv)
     printf("%d Iterations, %lu bytes (%3.2f GiB)\n",
 	   ITER, ITER * data_bytes, ITER * data_bytes/1024.0/1024.0/1024.0);
     size_t emo = ITER * data_lines;
-    printf("%15s: %8lu\n\n", "Expected memops", emo);
+    printf("%15s: %8lu\n\n", "Expected memops (reads)", emo);
 
     void *data = 0;
     int ret = posix_memalign(&data, 1024*1024, data_bytes);
@@ -91,8 +91,8 @@ main(int argc, char **argv)
 
     struct counters s1, s2;
 
-    readcounters(&s1);
     double start = sec();
+    readcounters(&s1);
     for(int j=0;j<ITER;j++)
     {
         __asm
@@ -113,11 +113,11 @@ main(int argc, char **argv)
            LN2:
         }
     }
-    double stop = sec();
     readcounters(&s2);
+    double stop = sec();
 
     uint64_t sum;
-    printf("%17s","DDR Reads:");
+    printf("%25s","DDR Reads:");
     sum = 0;
     for (int i = 0; i < NMC; ++i)
     {
@@ -126,8 +126,8 @@ main(int argc, char **argv)
         sum += diff;
     }
     uint64_t rds_tot = sum;
-    printf("\n%17s %8lu\n", "DDR Reads Total:", rds_tot);
-    printf("%17s", "DDR Writes:");
+    printf("\n%25s %8lu\n", "DDR Reads Total:", rds_tot);
+    printf("%25s", "DDR Writes:");
     sum = 0;
     for (int i = 0; i < NMC; ++i)
     {
@@ -136,23 +136,21 @@ main(int argc, char **argv)
         sum += diff;
     }
     uint64_t wrt_tot = sum;
-    printf("\n%17s %8lu\n", "DDR Writes Total:", wrt_tot);
+    printf("\n%25s %8lu\n", "DDR Writes Total:", wrt_tot);
     uint64_t rd_wr_tot = rds_tot+wrt_tot;
     printf("\n%25s %8lu\n", "Reads plus Writes Total:", rd_wr_tot);
-    printf("%25s %8lu\n", "Expected memops:", emo);
-    printf("%25s %6.2f%%\n", "Difference:",
-	   100.0*fabs((double)emo - (double)rd_wr_tot)/((double) emo));
 
-#if 1
-    printf("stop=%3.3f, start=%3.3f\n",stop,start);
+    printf("\n%25s %8lu\n", "Expected memops (reads):", emo);
+    printf("%25s %6.2f%%\n", "Difference:",
+	   100.0*fabs((double)emo - (double)rds_tot)/((double) emo));
+
     double time = stop-start;
-    printf("Time elapsed = %3.3f s\n",time);
+    printf("\n%25s: %3.3f\n", "Time elapsed",time);
     double mln = 1024.0*1024.0;
-    printf("Bandwidth (empirical) = %3.2f MiB/s\n",
-	   data_bytes/time/mln);
-    printf("Bandwidth (counted)   = %3.2f MiB/s\n", 
-	   (rds_tot+wrt_tot)*64/time/mln);
-#endif
+    printf("%25s: %3.3f MiB/s\n", "Bandwidth (expected)",
+	   (double)(emo*64)/time/mln);
+    printf("%25s: %3.3f MiB/s\n", "Bandwidth (counted)", 
+	   (double)(rds_tot*64)/time/mln);
 
 #if 0
     printf("%15s:", " MCDRAM Reads");
