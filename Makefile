@@ -1,9 +1,9 @@
-CC=icc
-CFLAGS=-O0 -g -fasm-blocks -std=gnu99
 EXE=uncore_imc
-LDFLAGS=-static-intel
+LDFLAGS=
 OBJ=uncore_imc.o counter.o
 
+CC=icc
+CFLAGS=-O -g -fasm-blocks -std=gnu99
 
 all : $(OBJ)
 	$(CC) -o $(EXE) $(OBJ) $(LDFLAGS)

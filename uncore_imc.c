@@ -1,3 +1,18 @@
+/*
+
+  Run as
+  numactl -C cpuid ./uncore_imc MB
+  e.g.,
+  numactl -C 0 ./uncore_imc 1000
+
+  Care must be taken to ensure that the cpuid, which is the "processor" field
+  in /proc/cpuinfo, has a "physical id" field matching that of the memory
+  controller one is measuring. For example, on a node with 2 sockets of
+  Broadwell (E5-2698 v4) and two threads per core, cpuids 0-19, 40-59
+  have physical id 0.
+
+ */
+
 #define _GNU_SOURCE
 #include <assert.h>
 #include <math.h>
@@ -52,7 +67,7 @@ double sec()
         return ( (double) tp.tv_sec + (double) tp.tv_usec * 1.e-6 );
 }
 
-#define ITER 1
+#define ITER 10
 
 
 int
@@ -63,7 +78,8 @@ main(int argc, char **argv)
     int data_size=atoi(&argv[1][0]);    // size in MB
     size_t data_bytes = data_size*1024*1024;
     size_t data_lines = data_bytes / 64;
-    printf("%d Iterations, %lu bytes\n", ITER, ITER * data_bytes);
+    printf("%d Iterations, %lu bytes (%3.2f GiB)\n",
+	   ITER, ITER * data_bytes, ITER * data_bytes/1024.0/1024.0/1024.0);
     size_t emo = ITER * data_lines;
     printf("%15s: %8lu\n\n", "Expected memops", emo);
 
