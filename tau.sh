@@ -37,3 +37,7 @@ PAPI_NATIVE:bdx_unc_imc5::UNC_M_CAS_COUNT:RD:cpu=0
 
 # use this in paraprof derived metric for bandwidth
 #64*("PAPI_NATIVE:bdx_unc_imc0::UNC_M_CAS_COUNT:RD:cpu=0"+"PAPI_NATIVE:bdx_unc_imc1::UNC_M_CAS_COUNT:RD:cpu=0"+"PAPI_NATIVE:bdx_unc_imc4::UNC_M_CAS_COUNT:RD:cpu=0"+"PAPI_NATIVE:bdx_unc_imc5::UNC_M_CAS_COUNT:RD:cpu=0")/"TIME"
+
+# NB: Using that formula accounts for the magical million that paraprof
+# silently puts into the denominator. They are working on a fix for that, and
+# when it is fixed one will need to put their own 1e6.
