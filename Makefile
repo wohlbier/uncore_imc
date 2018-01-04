@@ -1,7 +1,15 @@
-all :
-	icc -O -g -fasm-blocks -std=c99 -c app.c
-	icc -O -g -std=gnu99 counter.c -c
-	icc -o counter counter.o app.o -static-intel
+EXE=uncore_imc
+LDFLAGS=
+OBJ=uncore_imc.o counter.o
+
+CC=icc
+CFLAGS=-O -g -fasm-blocks -std=gnu99
+
+all : $(OBJ)
+	$(CC) -o $(EXE) $(OBJ) $(LDFLAGS)
+
+%.o : %.c
+	$(CC) $(CFLAGS) -c $^
 
 clean :
-	-$(RM) *~ *.o counter
+	-$(RM) *~ $(OBJ) $(EXE)
