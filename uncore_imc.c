@@ -91,6 +91,12 @@ main(int argc, char **argv)
 
     struct counters s1, s2;
 
+#ifdef __TAU_MANUAL_INST__
+#include <Profile/Profiler.h>
+    TAU_PROFILE_TIMER(tautimer, "int main(int, char **) C [{uncore_imc.c}]", " ", TAU_USER);
+    TAU_PROFILE_START(tautimer);
+#endif
+
     double start = sec();
     readcounters(&s1);
     for(int j=0;j<ITER;j++)
@@ -115,6 +121,10 @@ main(int argc, char **argv)
     }
     readcounters(&s2);
     double stop = sec();
+
+#ifdef __TAU_MANUAL_INST__
+    TAU_PROFILE_STOP(tautimer)
+#endif
 
     uint64_t sum;
     printf("%25s","DDR Reads:");
