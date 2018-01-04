@@ -5,5 +5,5 @@ Note one needs a PAPI that supports uncore on Broadwell. As of now this can
 be obtained by cloning the papi git repository. See tau.sh for how to point
 TAU Commander to your special PAPI.
 
-Using TAU derived metric in paraprof got 12083 MiB/s, as compared to the
-code reading counters got 11461 MiB/s. ~5%.
+Using TAU derived metric in paraprof got 11991 MiB/s, as compared to the
+code reading counters got 11461 MiB/s. <~ 5%.

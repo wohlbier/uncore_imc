@@ -67,7 +67,7 @@ double sec()
         return ( (double) tp.tv_sec + (double) tp.tv_usec * 1.e-6 );
 }
 
-#define ITER 10
+#define ITER 100
 
 
 int
@@ -155,10 +155,11 @@ main(int argc, char **argv)
 	   100.0*fabs((double)emo - (double)rds_tot)/((double) emo));
 
     double time = stop-start;
-    printf("\n%25s: %3.3f\n", "Time elapsed",time);
+    printf("\n%25s: %3.3f s\n", "Time elapsed",time);
     double mln = 1024.0*1024.0;
     printf("%25s: %3.3f MiB/s\n", "Bandwidth (expected)",
 	   (double)(emo*64)/time/mln);
+    // just counting reads
     printf("%25s: %3.3f MiB/s\n", "Bandwidth (counted)", 
 	   (double)(rds_tot*64)/time/mln);
 
